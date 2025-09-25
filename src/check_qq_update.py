@@ -36,17 +36,17 @@ class QQNTVersionMonitor:
             name = links_manager.add_link(link).description
             if name:
                 text += f'{name}: {link}\n'
-        return version, links_manager
+        return version, text, links_manager
 
-    async def get_new_version(self) -> tuple[str | None, QQDownloadLinkManager | None]:
+    async def get_new_version(self) -> tuple[str | None, str, QQDownloadLinkManager | None]:
         try:
-            v, links = await self.get_version()
+            v, change_log, links = await self.get_version()
         except Exception as e:
-            return None, None
+            return None, '', None
         if v and v > self.current_version:
             self.current_version = v
-            return v, links
-        return None, None
+            return v, change_log, links
+        return None, '', None
 
 
 qqnt_version_monitor = QQNTVersionMonitor()
