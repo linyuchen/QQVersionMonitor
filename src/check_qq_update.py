@@ -28,6 +28,8 @@ class QQNTVersionMonitor:
         change_log_content = change_log_content.replace('</text>', '</text>\n')
         change_log_content = change_log_content.replace('</span>', '</span>\n')
         change_log_content = re.sub('<[^>]+?>', '', change_log_content)
+        if '【下载地址】' in change_log_content:
+            change_log_content = change_log_content[:change_log_content.rfind('【下载地址】')]
 
         version = re.findall(r'(\d{5})_', download_links[0])[0]
         text = f'QQNT {version}\n{change_log_content}\n\n'
