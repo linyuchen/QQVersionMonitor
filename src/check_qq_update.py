@@ -2,6 +2,8 @@ import re
 
 import httpx
 
+from bs4 import BeautifulSoup
+
 from .qq_download_link import QQDownloadLinkManager
 
 url = "https://docs.qq.com/doc/DVXNoRlpKaWhEY015?nlc=1"
@@ -21,13 +23,18 @@ class QQNTVersionMonitor:
         download_links = re.findall('https://dldir.+?qqfile/qq/QQNT/[^<]+', content)
         if not download_links:
             return None, ''
-        lnk_start_pos = content.rfind("【下载链接】")
-        change_log_content = content[:lnk_start_pos]
-        change_log_start_pos = change_log_content.rfind('【版本特性】')
-        change_log_content = change_log_content[change_log_start_pos:]
-        change_log_content = change_log_content.replace('</text>', '</text>\n')
-        change_log_content = change_log_content.replace('</span>', '</span>\n')
-        change_log_content = re.sub('<[^>]+?>', '', change_log_content)
+        soup = BeautifulSoup(content)
+        texts = [tag.get_text(strip=True) for tag in soup.find_all('text')]
+        texts = '\n'.join(texts)
+        feature_start_pos = texts.rfind('【版本特性】')
+        lnk_start_pos = texts.rfind("【下载链接】")
+        change_log_content = texts[feature_start_pos:]
+        if lnk_start_pos != -1:
+            if lnk_start_pos > feature_start_pos:
+                change_log_content = change_log_content[:lnk_start_pos]
+            else:
+                change_log_content = change_log_content[lnk_start_pos:]
+
         if '【下载地址】' in change_log_content:
             change_log_content = change_log_content[:change_log_content.rfind('【下载地址】')]
 
