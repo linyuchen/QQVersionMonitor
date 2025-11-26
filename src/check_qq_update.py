@@ -38,7 +38,12 @@ class QQNTVersionMonitor:
         if '【下载地址】' in change_log_content:
             change_log_content = change_log_content[:change_log_content.rfind('【下载地址】')]
 
-        version = re.findall(r'(\d{5})_', download_links[0])[0]
+        version = ''
+        for link in download_links:
+            v_match = re.findall(r'(\d{5})_', link)
+            if v_match:
+                version = v_match[0]
+
         text = f'QQNT {version}\n{change_log_content}\n\n'
         links_manager = QQDownloadLinkManager()
         for link in download_links:
